@@ -1,0 +1,52 @@
+
+Analog Pin 4 - SDA
+Analog pin 5 - SCL
+5V  - Vcc
+GND - GND
+*/
+
+#include <Wire.h>  // Include the Wire library for I2C communication
+
+void setup() {
+  Wire.begin();  // Initialize the I2C bus
+  Serial.begin(9600);  // Start serial communication at 9600 baud rate
+  Serial.println("\nI2C Scanner");  // Print a header message to indicate the start of the scanner
+}
+
+void loop() {
+  byte error, address;  // Variables to store error codes and device addresses
+  int Devices;  // Variable to count the number of I2C devices found
+
+  Serial.println("Scanning...");  // Print a message indicating the scanning process has started
+  Devices = 0;  // Initialize the device counter to zero
+
+  // Loop through all possible I2C addresses (1 to 126)
+  for (address = 1; address < 127; address++) {
+    Wire.beginTransmission(address);  // Start communication with the current address
+    error = Wire.endTransmission();  // End transmission and store the error code
+
+    // If no error occurs, an I2C device is found at the current address
+    if (error == 0) {
+      Serial.print("I2C device found at address 0x");  // Print the address prefix
+      if (address < 16) Serial.print("0");  // Add a leading zero for addresses less than 16
+      Serial.print(address, HEX);  // Print the address in hexadecimal format
+      Serial.println("  !");  // Print a confirmation mark
+      Devices++;  // Increment the device counter
+    } 
+    // If error code is 4, an unknown error occurred
+    else if (error == 4) {
+      Serial.print("Unknown error at address 0x");  // Print the address prefix
+      if (address < 16) Serial.print("0");  // Add a leading zero for addresses less than 16
+      Serial.println(address, HEX);  // Print the address in hexadecimal format
+    }
+  }
+
+  // Check if any I2C devices were found
+  if (Devices == 0) {
+    Serial.println("No I2C devices found\n");  // Print a message if no devices are found
+  } else {
+    Serial.println("done\n");  // Print a completion message if devices are found
+  }
+
+  delay(5000);  // Wait for 5 seconds before the next scan
+}
